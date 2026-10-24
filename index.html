@@ -770,11 +770,48 @@ async function engineModnet(){
   } finally { URL.revokeObjectURL(url); }
 }
 
+/* Engine C: Google MediaPipe person segmentation (light, fast backup) */
+let mpSeg=null;
+async function engineMediapipe(){
+  if(!mpSeg){
+    status('Loading backup AI (Google)…','work'); progress(20);
+    const V='0.10.14';
+    const mp=await import(`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${V}`);
+    const files=await mp.FilesetResolver.forVisionTasks(`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${V}/wasm`);
+    mpSeg=await mp.ImageSegmenter.createFromOptions(files,{
+      baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite',delegate:'CPU'},
+      runningMode:'IMAGE', outputCategoryMask:false, outputConfidenceMasks:true
+    });
+  }
+  status('Processing…','work'); progress(80);
+  const k=Math.min(1,1024/Math.max(S.orig.width,S.orig.height));
+  const inp=document.createElement('canvas'); inp.width=Math.round(S.orig.width*k); inp.height=Math.round(S.orig.height*k);
+  inp.getContext('2d').drawImage(S.orig,0,0,inp.width,inp.height);
+  const res=mpSeg.segment(inp), masks=res.confidenceMasks||[];
+  if(!masks.length) throw new Error('no mask');
+  const mw=masks[0].width, mh=masks[0].height, m0=masks[0].getAsFloat32Array();
+  // multiclass model: mask 0 = background, so person = 1 - background
+  const fg=new Float32Array(m0.length); for(let i=0;i<m0.length;i++) fg[i]=masks.length>1?1-m0[i]:m0[i];
+  masks.forEach(m=>{ try{ m.close(); }catch(e){} }); try{ res.close&&res.close(); }catch(e){}
+  // safety: the middle of the photo should be the person; flip if it came out inverted
+  let mid=0,edge=0; for(let y=0;y<mh;y+=4){ for(let x=0;x<mw;x+=4){ const v=fg[y*mw+x]; if(x>mw*0.3&&x<mw*0.7&&y>mh*0.2&&y<mh*0.8) mid+=v; else edge+=v; } }
+  const flip = mid*1.0 < edge*0.25;
+  const mc=document.createElement('canvas'); mc.width=mw; mc.height=mh; const mx=mc.getContext('2d'), md=mx.createImageData(mw,mh);
+  for(let i=0;i<fg.length;i++){ let v=flip?1-fg[i]:fg[i]; v=Math.max(0,Math.min(1,(v-0.3)/0.4)); md.data[i*4+3]=Math.round(v*255); }
+  mx.putImageData(md,0,0);
+  const out=document.createElement('canvas'); out.width=S.orig.width; out.height=S.orig.height; const ox=out.getContext('2d');
+  ox.filter='blur(1px)'; ox.drawImage(mc,0,0,out.width,out.height); ox.filter='none';
+  ox.globalCompositeOperation='source-in'; ox.drawImage(S.orig,0,0);
+  return await canvasBlob(out,'image/png');
+}
+
 $('btnAI').addEventListener('click',async()=>{
   if(!S.origBlob) return; lockBtns(true);
   status('Loading AI tool… first time takes 1–2 minutes (internet needed)','work'); progress(3);
   const errs=[];
-  const order = sGet('pco_engine')==='modnet' ? [['modnet',engineModnet],['imgly',engineImgly]] : [['imgly',engineImgly],['modnet',engineModnet]];
+  const ENG=[['imgly',engineImgly],['modnet',engineModnet],['mediapipe',engineMediapipe]];
+  const pref=sGet('pco_engine');
+  const order=[...ENG.filter(e=>e[0]===pref),...ENG.filter(e=>e[0]!==pref)];
   try{
     for(const [name,run] of order){
       try{
@@ -785,7 +822,7 @@ $('btnAI').addEventListener('click',async()=>{
         return;
       }catch(e){
         console.error(name,e); errs.push(name+': '+(e.message||e));
-        status('First AI did not respond, trying the second one…','work'); progress(5);
+        status('This AI did not respond, trying the next one…','work'); progress(5);
       }
     }
     status('Free removal failed — '+errs.join(' | ')+'. Send this message to Claude, or use remove.bg for now.','err');
