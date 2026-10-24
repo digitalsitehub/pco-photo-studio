@@ -726,11 +726,15 @@ async function engineImgly(){
   const mod=await loadImgly();
   const fn=mod.removeBackground||(mod.default&&mod.default.removeBackground)||mod.default;
   if(typeof fn!=='function') throw new Error('AI tool did not load');
-  return await fn(S.origBlob,{
-    progress:(key,cur,total)=>{ if(total){ const p=Math.round(cur/total*100); progress(p);
+  // watchdog: if this engine shows no progress for 60 s, give up so the second engine can run
+  let last=Date.now(), timer=null;
+  const stuck=new Promise((_,rej)=>{ timer=setInterval(()=>{ if(Date.now()-last>60000) rej(new Error('stuck while processing')); },2000); });
+  const work=fn(S.origBlob,{
+    progress:(key,cur,total)=>{ last=Date.now(); if(total){ const p=Math.round(cur/total*100); progress(p);
       status((String(key).includes('fetch')?'Downloading AI model… ':'Processing… ')+p+'%','work'); } },
     output:{format:'image/png',quality:1}
   });
+  try{ return await Promise.race([work,stuck]); } finally { clearInterval(timer); }
 }
 
 /* Engine B: MODNet portrait model via Transformers.js (model from huggingface.co) */
