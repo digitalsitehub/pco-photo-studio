@@ -384,31 +384,106 @@ details[open] summary{margin-bottom:8px}
       </div>
     </div>
     <p class="hint">Drag the 4 round handles onto the 4 corners of the card.</p>
+    <div class="row"><button type="button" id="idSwap">Swap Front ↔ Back</button></div>
   </div>
 
   <div class="app">
     <div class="panel">
       <h2>Page Settings</h2>
+      <p class="ur">کاغذ کا سائز، رخ اور ایک پیج پر کتنی کاپیاں آئیں، یہاں سے چنیں</p>
       <div class="row">
         <label class="f">Card type
           <select id="idCard">
-            <option value="85.6x54">CNIC / ATM size (85.6×54 mm)</option>
+            <option value="85.6x54">CNIC / ATM / Licence (85.6×54 mm)</option>
             <option value="105x74">Large card (105×74 mm)</option>
+            <option value="125x88">Passport data page (125×88 mm)</option>
+            <option value="89x51">Visiting card (89×51 mm)</option>
+            <option value="custom">Custom card size…</option>
           </select>
         </label>
-        <label class="f">Paper
-          <select id="idPaper"><option value="a4">A4</option><option value="letter">Letter</option></select>
+        <label class="f">Paper size
+          <select id="idPaper">
+            <optgroup label="A series">
+              <option value="a3">A3 (297×420 mm)</option>
+              <option value="a4" selected>A4 (210×297 mm)</option>
+              <option value="a5">A5 (148×210 mm)</option>
+              <option value="a6">A6 (105×148 mm)</option>
+            </optgroup>
+            <optgroup label="B series">
+              <option value="b4">B4 (250×353 mm)</option>
+              <option value="b5">B5 (176×250 mm)</option>
+            </optgroup>
+            <optgroup label="US / Office">
+              <option value="letter">Letter (8.5×11 in)</option>
+              <option value="legal">Legal (8.5×14 in)</option>
+              <option value="folio">Folio / F4 (8.5×13 in)</option>
+              <option value="foolscap">Foolscap (8×13 in)</option>
+              <option value="executive">Executive (7.25×10.5 in)</option>
+              <option value="tabloid">Tabloid / Ledger (11×17 in)</option>
+            </optgroup>
+            <optgroup label="Photo paper">
+              <option value="3.5x5">3.5×5 in</option>
+              <option value="4x6">4×6 in</option>
+              <option value="5x7">5×7 in</option>
+              <option value="8x10">8×10 in</option>
+            </optgroup>
+            <optgroup label="Other">
+              <option value="custom">Custom paper size…</option>
+            </optgroup>
+          </select>
         </label>
       </div>
+      <div class="row" id="idCardCustom" hidden>
+        <label class="f">Card width (mm)<input type="number" id="idCw" min="20" max="300" step="0.1" value="85.6"></label>
+        <label class="f">Card height (mm)<input type="number" id="idCh" min="20" max="300" step="0.1" value="54"></label>
+      </div>
+      <div class="row" id="idPaperCustom" hidden>
+        <label class="f">Paper width (mm)<input type="number" id="idPw" min="50" max="600" step="0.1" value="210"></label>
+        <label class="f">Paper height (mm)<input type="number" id="idPh" min="50" max="600" step="0.1" value="297"></label>
+      </div>
       <div class="row">
+        <label class="f">Orientation
+          <select id="idOrient">
+            <option value="portrait">Portrait (standing)</option>
+            <option value="landscape">Landscape (sleeping)</option>
+          </select>
+        </label>
         <label class="f">Copies on page
           <select id="idSets">
-            <option value="1">1 set (front above back)</option>
+            <option value="1">1 set</option>
             <option value="2">2 sets</option>
             <option value="3">3 sets</option>
             <option value="4">4 sets</option>
+            <option value="5">5 sets</option>
+            <option value="6">6 sets</option>
+            <option value="8">8 sets</option>
+            <option value="10">10 sets</option>
+            <option value="max">Fill whole page</option>
           </select>
         </label>
+      </div>
+      <div class="row">
+        <label class="f">Front / Back layout
+          <select id="idLayout">
+            <option value="auto">Auto (best fit)</option>
+            <option value="stack">Front above Back</option>
+            <option value="side">Front and Back side by side</option>
+            <option value="front">Front only (all copies)</option>
+            <option value="back">Back only (all copies)</option>
+          </select>
+        </label>
+        <label class="f">Position on page
+          <select id="idPos">
+            <option value="top">Top of page</option>
+            <option value="center">Centre of page</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        <label class="f">Gap between cards (mm)<input type="number" id="idGap" min="0" max="40" step="1" value="10"></label>
+        <label class="f">Page margin (mm)<input type="number" id="idMargin" min="0" max="40" step="1" value="10"></label>
+      </div>
+      <div class="row">
         <label class="f">Look
           <select id="idLook">
             <option value="color">Colour</option>
@@ -419,7 +494,11 @@ details[open] summary{margin-bottom:8px}
       </div>
       <label class="f">Brightness <input type="range" id="idBright" min="60" max="160" value="105"></label>
       <label class="f">Contrast <input type="range" id="idContrast" min="60" max="180" value="115"></label>
+      <div class="row"><button type="button" id="idResetLook">Reset brightness / contrast</button></div>
       <label class="chk"><input type="checkbox" id="idRound" checked> Rounded corners + cut line</label>
+      <label class="chk"><input type="checkbox" id="idMarks"> Cut marks at corners (for paper cutter)</label>
+      <label class="chk"><input type="checkbox" id="idLabels"> Print "FRONT" / "BACK" small label under cards</label>
+      <p class="meta" id="idInfo">—</p>
       <div class="dl">
         <button class="pri" id="idPrint" disabled>Print Page</button>
         <button id="idJpg" disabled>Download Page (JPG)</button>
@@ -1265,6 +1344,23 @@ $('newPhoto').addEventListener('click',()=>{ S.orig=null;S.cut=null;S.origBlob=n
    ID CARD COPY
    ===================================================== */
 const ID={ front:null, back:null }; // {src, q:[[x,y],...] tl,tr,br,bl}
+const ID_PAPERS={ a3:[297,420], a4:[210,297], a5:[148,210], a6:[105,148], b4:[250,353], b5:[176,250],
+  letter:[215.9,279.4], legal:[215.9,355.6], folio:[215.9,330.2], foolscap:[203.2,330.2], executive:[184.2,266.7], tabloid:[279.4,431.8],
+  '3.5x5':[88.9,127], '4x6':[101.6,152.4], '5x7':[127,177.8], '8x10':[203.2,254] };
+const idNum=(id,def,lo,hi)=>{ const v=parseFloat($(id).value); return isFinite(v)?Math.min(hi,Math.max(lo,v)):def; };
+function idCardSize(){
+  const v=$('idCard').value;
+  if(v==='custom') return [idNum('idCw',85.6,20,300), idNum('idCh',54,20,300)];
+  const p=(v||'85.6x54').split('x').map(Number); return (p.length===2&&p[0]>0&&p[1]>0)?p:[85.6,54];
+}
+function idPaperSize(){
+  const v=$('idPaper').value; let W,H;
+  if(v==='custom'){ W=idNum('idPw',210,50,600); H=idNum('idPh',297,50,600); }
+  else [W,H]=ID_PAPERS[v]||ID_PAPERS.a4;
+  const land=$('idOrient').value==='landscape';
+  if(land? W<H : W>H) [W,H]=[H,W];
+  return [W,H];
+}
 function defaultQuad(src){ const w=src.width,h=src.height,mx=w*0.08,my=h*0.08; return [[mx,my],[w-mx,my],[w-mx,h-my],[mx,h-my]]; }
 function idStatus(m,k){ const el=$('idStatus'); el.textContent=m; el.className='status'+(k?' '+k:''); }
 
@@ -1353,46 +1449,90 @@ function warpCard(side,wmm,hmm){
 }
 function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function renderIdPage(){
-  const [W,H]=PAPERS[$('idPaper').value];
-  const [cw,chh]=$('idCard').value.split('x').map(Number);
-  const sets=+$('idSets').value, round=$('idRound').checked;
+  const [W,H]=idPaperSize();
+  const [cw,chh]=idCardSize();
+  const setsV=$('idSets').value||'1', round=$('idRound').checked, marks=$('idMarks').checked, labels=$('idLabels').checked;
+  const gap=idNum('idGap',10,0,40), m=idNum('idMargin',10,0,40);
+  let layout=$('idLayout').value||'auto';
   const c=document.createElement('canvas'); c.width=mm2px(W); c.height=mm2px(H);
   const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height);
   const cards={front:ID.front?warpCard('front',cw,chh):null, back:ID.back?warpCard('back',cw,chh):null};
-  const place=(img,mx,my)=>{
-    if(!img) return; const px=mm2px(mx),py=mm2px(my),r=mm2px(cw>90?4:3.18);
-    x.save(); if(round){ roundRect(x,px,py,img.width,img.height,r); x.clip(); }
-    x.drawImage(img,px,py); x.restore();
-    if(round){ roundRect(x,px+.5,py+.5,img.width-1,img.height-1,r); x.strokeStyle='#9a9a9a'; x.lineWidth=2; x.stroke(); }
-  };
-  let used=0;
-  if(sets===1){
-    const mx=(W-cw)/2; place(cards.front,mx,30); place(cards.back,mx,30+chh+18); used=1;
-  } else {
-    const gapX=10, rowGap=12, x0=(W-(cw*2+gapX))/2;
-    const maxRows=Math.floor((H-30+rowGap)/(chh+rowGap)); const rows=Math.min(sets,maxRows);
-    for(let r=0;r<rows;r++){ const y=20+r*(chh+rowGap); place(cards.front,x0,y); place(cards.back,x0+cw+gapX,y); }
-    used=rows;
+  const labH=labels?5:0;          // space under each card for the label (mm)
+  const cellH=chh+labH;
+  // a "set" = the cards that go together
+  const setDims=l=> l==='side' ? [cw*2+gap, cellH] : l==='stack' ? [cw, cellH*2+gap] : [cw, cellH];
+  const fit=l=>{ const [sw,sh]=setDims(l); const cols=Math.max(0,Math.floor((W-2*m+gap)/(sw+gap))), rows=Math.max(0,Math.floor((H-2*m+gap)/(sh+gap))); return {cols,rows,cap:cols*rows,sw,sh}; };
+  const want=setsV==='max'?Infinity:Math.max(1,parseInt(setsV)||1);
+  if(layout==='auto'){
+    const fs=fit('side'), ft=fit('stack');
+    if(want===1) layout = ft.cap>=1 ? 'stack' : 'side';
+    else layout = fs.cap>=ft.cap ? 'side' : 'stack';
   }
-  return {canvas:c,W,H,cards,used,sets};
+  const F=fit(layout);
+  const n=Math.min(want,F.cap);
+  const r=mm2px(Math.min(cw,chh)>60?4:3.18);
+  const place=(img,mx,my,name)=>{
+    const px=mm2px(mx),py=mm2px(my),pw=mm2px(cw),ph=mm2px(chh);
+    if(img){
+      x.save(); if(round){ roundRect(x,px,py,img.width,img.height,r); x.clip(); }
+      x.drawImage(img,px,py); x.restore();
+      if(round){ roundRect(x,px+.5,py+.5,img.width-1,img.height-1,r); x.strokeStyle='#9a9a9a'; x.lineWidth=2; x.stroke(); }
+    }
+    if(marks){
+      const L=mm2px(4), o=mm2px(1); x.strokeStyle='#000'; x.lineWidth=2; x.beginPath();
+      [[px,py,-1,-1],[px+pw,py,1,-1],[px,py+ph,-1,1],[px+pw,py+ph,1,1]].forEach(([cx,cy,dx,dy])=>{
+        x.moveTo(cx+dx*o,cy); x.lineTo(cx+dx*(o+L),cy);
+        x.moveTo(cx,cy+dy*o); x.lineTo(cx,cy+dy*(o+L));
+      });
+      x.stroke();
+    }
+    if(labels && img){
+      x.fillStyle='#555'; x.font=`600 ${mm2px(2.6)}px Arial, sans-serif`; x.textAlign='center'; x.textBaseline='top';
+      x.fillText(name, px+pw/2, py+ph+mm2px(1));
+    }
+  };
+  if(n>0){
+    const cols=Math.min(F.cols,n), rows=Math.ceil(n/F.cols);
+    const blockW=cols*F.sw+(cols-1)*gap, blockH=rows*F.sh+(rows-1)*gap;
+    const x0=(W-blockW)/2;
+    const y0=$('idPos').value==='center' ? (H-blockH)/2 : Math.max(m, Math.min(20,(H-blockH)/2));
+    for(let i=0;i<n;i++){
+      const cx=x0+(i%F.cols)*(F.sw+gap), cy=y0+Math.floor(i/F.cols)*(F.sh+gap);
+      if(layout==='side'){ place(cards.front,cx,cy,'FRONT'); place(cards.back,cx+cw+gap,cy,'BACK'); }
+      else if(layout==='stack'){ place(cards.front,cx,cy,'FRONT'); place(cards.back,cx,cy+cellH+gap,'BACK'); }
+      else if(layout==='front'){ place(cards.front,cx,cy,'FRONT'); }
+      else { place(cards.back,cx,cy,'BACK'); }
+    }
+  }
+  return {canvas:c,W,H,cards,used:n,sets:want,cap:F.cap,layout,cw,chh};
 }
 let idTimer=null;
 function updateId(){
   const has=!!(ID.front||ID.back);
+  $('idCardCustom').hidden=$('idCard').value!=='custom';
+  $('idPaperCustom').hidden=$('idPaper').value!=='custom';
   ['idPrint','idJpg','idPdfHint'].forEach(id=>$(id).disabled=!has);
   clearTimeout(idTimer);
   idTimer=setTimeout(()=>{
     const r=renderIdPage(); showPreview(r.canvas,$('idSheet'),460,650);
-    if(!has) idStatus('Add the front side to start.');
-    else if(r.used<r.sets) idStatus(`Only ${r.used} sets fit on this paper.`,'work');
-    else idStatus((ID.front&&ID.back)?'Ready to print.':'Only one side added. You can still print it.','ok');
+    const ps=$('idPaper'), pName=ps.value==='custom'?'Custom':(ps.options[ps.selectedIndex]?.text||'').split(' (')[0];
+    const lay={side:'side by side',stack:'front above back',front:'front only',back:'back only'}[r.layout];
+    $('idInfo').innerHTML=`<b>${pName}</b> ${fmt(r.W)}×${fmt(r.H)} mm · card ${fmt(r.cw)}×${fmt(r.chh)} mm · <b>${r.used}</b> set(s), ${lay} · max ${r.cap} fit`;
+    if(r.cap===0) idStatus('The card does not fit on this paper. Choose a bigger paper, Landscape, or a smaller margin.','err');
+    else if(!has) idStatus('Add the front side to start.');
+    else if(r.layout==='front'&&!ID.front) idStatus('Layout is "Front only" but no front photo is added.','work');
+    else if(r.layout==='back'&&!ID.back) idStatus('Layout is "Back only" but no back photo is added.','work');
+    else if(r.sets!==Infinity&&r.used<r.sets) idStatus(`Only ${r.used} sets fit on this paper.`,'work');
+    else idStatus((ID.front&&ID.back)||r.layout==='front'||r.layout==='back'?'Ready to print.':'Only one side added. You can still print it.','ok');
   },60);
 }
-['idCard','idPaper','idSets','idLook','idBright','idContrast','idRound'].forEach(id=>{ $(id).addEventListener('input',updateId); $(id).addEventListener('change',updateId); });
+['idCard','idPaper','idSets','idLook','idBright','idContrast','idRound','idCw','idCh','idPw','idPh','idOrient','idLayout','idPos','idGap','idMargin','idMarks','idLabels'].forEach(id=>{ $(id).addEventListener('input',updateId); $(id).addEventListener('change',updateId); });
 $('idPrint').addEventListener('click',()=>{ const r=renderIdPage(); printCanvas(r.canvas,r.W,r.H); });
+$('idSwap').addEventListener('click',()=>{ [ID.front,ID.back]=[ID.back,ID.front]; drawCrop('front'); drawCrop('back'); updateId(); });
+$('idResetLook').addEventListener('click',()=>{ $('idBright').value=105; $('idContrast').value=115; updateId(); });
 $('idJpg').addEventListener('click',async()=>{ const r=renderIdPage(); download(await jpegWithDpi(r.canvas),`id-card-page-${stamp()}.jpg`); });
 $('idPdfHint').addEventListener('click',async()=>{
-  const [cw,chh]=$('idCard').value.split('x').map(Number);
+  const [cw,chh]=idCardSize();
   for(const side of ['front','back']) if(ID[side]) download(await jpegWithDpi(warpCard(side,cw,chh)),`id-${side}-${stamp()}.jpg`);
 });
 
@@ -1659,10 +1799,10 @@ $('dJpg').addEventListener('click',async()=>{
 ['dLook','dPaper'].forEach(id=>$(id).addEventListener('change',()=>{}));
 
 /* ---------- remember settings on this computer ---------- */
-const SAVE_IDS=['photoSize','cw','ch','sheet','orient','copies','gap','margin','idCard','idPaper','idSets','idLook','fPreset','fW','fH','fKB','dLook','dPaper','dKB'];
+const SAVE_IDS=['photoSize','cw','ch','sheet','orient','copies','gap','margin','idCard','idPaper','idSets','idLook','idCw','idCh','idPw','idPh','idOrient','idLayout','idPos','idGap','idMargin','fPreset','fW','fH','fKB','dLook','dPaper','dKB'];
 (function(){
   let st={}; try{ st=JSON.parse(sGet('pco_settings')||'{}')||{}; }catch(e){}
-  SAVE_IDS.forEach(id=>{ if(st[id]!=null && $(id)) $(id).value=st[id]; });
+  SAVE_IDS.forEach(id=>{ if(st[id]!=null && $(id)){ const el=$(id), old=el.value; el.value=st[id]; if(el.tagName==='SELECT'&&el.value!==String(st[id])) el.value=old; } });
   const save=()=>{ const o={}; SAVE_IDS.forEach(id=>o[id]=$(id).value); sSet('pco_settings',JSON.stringify(o)); };
   SAVE_IDS.forEach(id=>{ $(id).addEventListener('change',save); $(id).addEventListener('input',save); });
 })();
